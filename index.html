@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mr. Dentist Smile Studio - Final Version</title>
+    <title>Mr. Dentist Smile Studio - LIFF</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,13 +31,13 @@
             transform: scale(1.1);
         }
         .color-swatch.selected-1, .color-swatch.selected-2 {
-            outline: 3px solid #0ea5e9; /* sky-500 */
+            outline: 3px solid #0ea5e9;
             outline-offset: 2px;
             transform: scale(1.15);
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .color-swatch.selected-2 {
-            outline-color: #ec4899; /* pink-500 */
+            outline-color: #ec4899;
         }
         .color-no {
             position: absolute;
@@ -51,23 +51,30 @@
             pointer-events: none;
         }
         .mode-btn.active {
-             background-color: #0284c7; /* sky-600 */
+             background-color: #0284c7;
              color: white;
+        }
+        #loading-overlay {
+            transition: opacity 0.3s ease-in-out;
         }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
 
-    <div id="app" class="container mx-auto p-4 max-w-7xl">
+    <div id="loading-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <p class="text-lg font-semibold text-slate-600">กำลังเชื่อมต่อกับ LINE...</p>
+    </div>
+
+    <div id="app" class="container mx-auto p-4 max-w-7xl opacity-0" style="transition: opacity 0.5s ease-in-out;">
 
         <header class="text-center py-6">
-            <h1 class="text-4xl font-bold text-sky-600">Mister Dentist Smile Studio</h1>
+            <h1 class="text-4xl font-bold text-sky-600">Mr. Dentist Smile Studio</h1>
+            <p id="welcome-message" class="text-lg text-slate-600 mt-2">เลือกสีที่ใช่สำหรับคุณ!</p>
         </header>
 
         <main class="bg-white rounded-2xl shadow-lg p-4 md:p-8">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                <!-- 2D Image Area -->
                 <div class="lg:col-span-2 relative w-full h-auto bg-gray-200 rounded-lg overflow-hidden shadow-inner flex items-center justify-center">
                     <div id="canvas-container">
                         <canvas id="canvas"></canvas>
@@ -77,20 +84,13 @@
                     </p>
                 </div>
 
-                <!-- Controls Area -->
                 <div class="flex flex-col gap-6">
                     <div>
                         <h3 class="font-semibold text-lg mb-3">1. เลือกโหมด</h3>
                         <div class="grid grid-cols-3 gap-2">
-                            <button id="mode-single" class="mode-btn w-full text-sm font-semibold py-3 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400 active">
-                                1 สี
-                            </button>
-                            <button id="mode-alternate" class="mode-btn w-full bg-slate-200 text-slate-700 text-sm font-semibold py-3 rounded-lg shadow hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400">
-                                สลับสี
-                            </button>
-                             <button id="mode-separate" class="mode-btn w-full bg-slate-200 text-slate-700 text-sm font-semibold py-3 rounded-lg shadow hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400">
-                                บน-ล่าง
-                            </button>
+                            <button id="mode-single" class="mode-btn w-full text-sm font-semibold py-3 rounded-lg shadow active">1 สี</button>
+                            <button id="mode-alternate" class="mode-btn w-full bg-slate-200 text-slate-700 text-sm font-semibold py-3 rounded-lg shadow">สลับสี</button>
+                             <button id="mode-separate" class="mode-btn w-full bg-slate-200 text-slate-700 text-sm font-semibold py-3 rounded-lg shadow">บน-ล่าง</button>
                         </div>
                     </div>
 
@@ -109,12 +109,8 @@
                     <div>
                          <h3 class="font-semibold text-lg mb-3">3. จัดการ</h3>
                          <div class="flex flex-col gap-3">
-                            <button id="reset-button" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg shadow">
-                                รีเซ็ตสีเริ่มต้น
-                            </button>
-                            <button id="share-button" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg shadow">
-                                บันทึกและแชร์
-                            </button>
+                            <button id="reset-button" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg shadow">รีเซ็ตสีเริ่มต้น</button>
+                            <button id="share-button" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg shadow">บันทึกและแชร์</button>
                         </div>
                     </div>
                 </div>
@@ -122,26 +118,54 @@
         </main>
     </div>
 
-    <!-- Modal for Sharing -->
     <div id="share-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl p-6 max-w-lg w-full text-center">
-            <h2 class="text-2xl font-bold mb-4">สไตล์ของคุณพร้อมแชร์แล้ว!</h2>
+            <h2 class="text-2xl font-bold mb-4">สไตล์ของคุณพร้อมแล้ว!</h2>
             <div class="bg-slate-100 p-2 rounded-lg mb-6">
                  <img id="final-image" src="" alt="Final customized smile" class="max-w-full h-auto rounded-md">
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                 <a id="download-button" href="#" download="mr-dentist-style.png" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-sky-600 hover:bg-sky-700">
+            <div class="flex flex-col gap-4">
+                 <button id="send-to-clinic-button" class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700">
+                    <img src="https://scdn.line-apps.com/n/line_app_icon/120x120/line_icon.png" class="w-6 h-6 mr-2">
+                    ส่งสรุปสีที่เลือกให้คลินิก
+                </button>
+                 <a id="download-button" href="#" download="mr-dentist-style.png" class="w-full inline-flex justify-center items-center px-6 py-3 border border-slate-300 text-base font-medium rounded-full shadow-sm text-slate-700 bg-white hover:bg-slate-50">
                     ดาวน์โหลดรูปภาพ
                 </a>
-                <button id="close-modal-button" type="button" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-slate-300 text-base font-medium rounded-full shadow-sm text-slate-700 bg-white hover:bg-slate-50">
-                    ปิด
-                </button>
+                <button id="close-modal-button" type="button" class="w-full text-sm text-slate-500 mt-2">ปิด</button>
             </div>
         </div>
     </div>
     
+    <!-- LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    async function main() {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const appDiv = document.getElementById('app');
+        const welcomeMessage = document.getElementById('welcome-message');
+
+        try {
+            // **LIFF ID has been updated with your provided ID.**
+            await liff.init({ liffId: '2007619958-Eo0arOXR' });
+
+            if (!liff.isLoggedIn()) {
+                liff.login();
+                return;
+            }
+
+            const profile = await liff.getProfile();
+            welcomeMessage.textContent = `สวัสดีคุณ ${profile.displayName}!`;
+
+        } catch (err) {
+            console.error(err);
+            welcomeMessage.textContent = "ไม่สามารถเชื่อมต่อกับ LINE ได้";
+        } finally {
+            loadingOverlay.style.opacity = '0';
+            appDiv.style.opacity = '1';
+            setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300);
+        }
+
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         const canvasInstruction = document.getElementById('canvas-instruction');
@@ -159,6 +183,7 @@
         const closeModalButton = document.getElementById('close-modal-button');
         const finalImage = document.getElementById('final-image');
         const downloadButton = document.getElementById('download-button');
+        const sendToClinicButton = document.getElementById('send-to-clinic-button');
 
         let currentMode = 'single';
         let dualColorSelectorToggle = false;
@@ -217,7 +242,6 @@
         function redrawAllBrackets() {
             if (!originalImageData) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             const radius = 35; 
             
             if (currentMode === 'single') {
@@ -228,20 +252,16 @@
                     ctx.fill();
                 });
             } else if (currentMode === 'alternate') {
-                // Upper teeth: A, B, A, B...
                 upperBrackets.forEach((coord, index) => {
-                    const colorToApply = index % 2 === 0 ? selectedColor1.code : selectedColor2.code;
                     ctx.beginPath();
                     ctx.arc(coord.x, coord.y, radius, 0, Math.PI * 2, false);
-                    ctx.fillStyle = colorToApply;
+                    ctx.fillStyle = index % 2 === 0 ? selectedColor1.code : selectedColor2.code;
                     ctx.fill();
                 });
-                // Lower teeth: B, A, B, A...
                 lowerBrackets.forEach((coord, index) => {
-                    const colorToApply = index % 2 === 0 ? selectedColor2.code : selectedColor1.code;
                     ctx.beginPath();
                     ctx.arc(coord.x, coord.y, radius, 0, Math.PI * 2, false);
-                    ctx.fillStyle = colorToApply;
+                    ctx.fillStyle = index % 2 === 0 ? selectedColor2.code : selectedColor1.code;
                     ctx.fill();
                 });
             } else if (currentMode === 'separate') {
@@ -335,27 +355,18 @@
             dualColorSelectorToggle = false;
             
             document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('active');
-                btn.classList.remove('bg-sky-500');
-                btn.classList.remove('text-white');
-                btn.classList.add('bg-slate-200');
-                btn.classList.add('text-slate-700');
+                btn.classList.remove('active', 'bg-sky-500', 'text-white');
+                btn.classList.add('bg-slate-200', 'text-slate-700');
             });
             
             let activeButton;
-            if (newMode === 'single') {
-                activeButton = modeSingleBtn;
-            } else if (newMode === 'alternate'){
-                activeButton = modeAlternateBtn;
-            } else {
-                 activeButton = modeSeparateBtn;
-            }
+            if (newMode === 'single') activeButton = modeSingleBtn;
+            else if (newMode === 'alternate') activeButton = modeAlternateBtn;
+            else activeButton = modeSeparateBtn;
+            
             activeButton.classList.add('active');
-            activeButton.classList.remove('bg-slate-200');
-            activeButton.classList.remove('text-slate-700');
-            activeButton.classList.add('bg-sky-500');
-            activeButton.classList.add('text-white');
-
+            activeButton.classList.remove('bg-slate-200', 'text-slate-700');
+            activeButton.classList.add('bg-sky-500', 'text-white');
 
             updateSelectedColorUI();
             redrawAllBrackets();
@@ -364,7 +375,6 @@
         modeSingleBtn.addEventListener('click', () => switchMode('single'));
         modeAlternateBtn.addEventListener('click', () => switchMode('alternate'));
         modeSeparateBtn.addEventListener('click', () => switchMode('separate'));
-
         resetButton.addEventListener('click', () => {
             selectedColor1 = colors[0];
             selectedColor2 = colors[1];
@@ -373,45 +383,36 @@
         });
 
         shareButton.addEventListener('click', () => {
-            const dataUrl = canvas.toDataURL('image/png');
-            const finalCanvas = document.createElement('canvas');
-            const finalCtx = finalCanvas.getContext('2d');
-            const tempImg = new Image();
-            
-            tempImg.onload = () => {
-                const padding = 40;
-                const footerHeight = 120;
-                finalCanvas.width = tempImg.width + padding * 2;
-                finalCanvas.height = tempImg.height + padding * 2 + footerHeight;
+            finalImage.src = canvas.toDataURL('image/png');
+            downloadButton.href = canvas.toDataURL('image/png');
+            shareModal.style.display = 'flex';
+        });
+        
+        sendToClinicButton.addEventListener('click', () => {
+            if (!liff.isInClient()) {
+                alert("กรุณาเปิดในแอปพลิเคชัน LINE เพื่อใช้ฟังก์ชันนี้");
+                return;
+            }
 
-                finalCtx.fillStyle = 'white';
-                finalCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-                finalCtx.drawImage(tempImg, padding, padding);
+            let messageText = "สนใจเปลี่ยนสียางครับ\n";
+            if (currentMode === 'single') {
+                messageText += `แบบสีเดียว: No. ${selectedColor1.no}`;
+            } else if (currentMode === 'alternate') {
+                messageText += `แบบสลับสี: No. ${selectedColor1.no} และ No. ${selectedColor2.no}`;
+            } else {
+                messageText += `แบบบน-ล่าง\nสีบน: No. ${selectedColor1.no}\nสีล่าง: No. ${selectedColor2.no}`;
+            }
 
-                const footerY = tempImg.height + padding * 2;
-                finalCtx.fillStyle = '#0284c7';
-                finalCtx.fillRect(0, footerY, finalCanvas.width, footerHeight);
-                
-                let colorText = "";
-                if (currentMode === 'single') {
-                   colorText = `สีที่เลือก: No. ${selectedColor1.no}`;
-                } else if (currentMode === 'alternate') {
-                    colorText = `สีที่เลือก: No. ${selectedColor1.no}, No. ${selectedColor2.no} (สลับ)`;
-                } else {
-                    colorText = `สีบน: No. ${selectedColor1.no}, สีล่าง: No. ${selectedColor2.no}`;
-                }
-
-                finalCtx.fillStyle = 'white';
-                finalCtx.font = 'bold 32px Kanit';
-                finalCtx.fillText(colorText, padding, footerY + 50);
-                finalCtx.font = '28px Kanit';
-                finalCtx.fillText('#สียางมิสเตอร์เดนทิสท์ #misterdentist', padding, footerY + 95);
-
-                finalImage.src = finalCanvas.toDataURL('image/png');
-                downloadButton.href = finalCanvas.toDataURL('image/png');
-                shareModal.style.display = 'flex';
-            };
-            tempImg.src = dataUrl;
+            liff.sendMessages([{
+                type: 'text',
+                text: messageText
+            }]).then(() => {
+                alert("ส่งข้อมูลให้คลินิกเรียบร้อยแล้วครับ!");
+                liff.closeWindow();
+            }).catch((err) => {
+                console.error('sendMessages failed', err);
+                alert("เกิดข้อผิดพลาดในการส่งข้อความ");
+            });
         });
         
         closeModalButton.addEventListener('click', () => {
@@ -420,7 +421,9 @@
 
         initColorPalette();
         switchMode('single');
-    });
+    }
+
+    main();
     </script>
 </body>
 </html>
