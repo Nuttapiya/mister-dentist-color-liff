@@ -125,11 +125,11 @@
                  <img id="final-image" src="" alt="Final customized smile" class="max-w-full h-auto rounded-md">
             </div>
             <div class="flex flex-col gap-4">
-                 <button id="send-to-clinic-button" class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700">
+                 <button id="send-to-clinic-button" class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700">
                     <img src="https://scdn.line-apps.com/n/line_app_icon/120x120/line_icon.png" class="w-6 h-6 mr-2">
-                    ส่งสรุปสีที่เลือกให้คลินิก
+                    นัดหมายจัดฟัน
                 </button>
-                 <a id="download-button" href="#" download="mr-dentist-style.png" class="w-full inline-flex justify-center items-center px-6 py-3 border border-slate-300 text-base font-medium rounded-full shadow-sm text-slate-700 bg-white hover:bg-slate-50">
+                 <a id="download-button" class="w-full inline-flex justify-center items-center px-6 py-3 border border-slate-300 text-base font-medium rounded-full shadow-sm text-slate-700 bg-white hover:bg-slate-50 cursor-pointer">
                     ดาวน์โหลดรูปภาพ
                 </a>
                 <button id="close-modal-button" type="button" class="w-full text-sm text-slate-500 mt-2">ปิด</button>
@@ -146,7 +146,6 @@
         const welcomeMessage = document.getElementById('welcome-message');
 
         try {
-            // **LIFF ID has been updated with your provided ID.**
             await liff.init({ liffId: '2007619958-Eo0arOXR' });
 
             if (!liff.isLoggedIn()) {
@@ -384,8 +383,17 @@
 
         shareButton.addEventListener('click', () => {
             finalImage.src = canvas.toDataURL('image/png');
-            downloadButton.href = canvas.toDataURL('image/png');
             shareModal.style.display = 'flex';
+        });
+        
+        downloadButton.addEventListener('click', (e) => {
+            // Prevent default anchor tag behavior
+            e.preventDefault();
+            // Create a temporary link element to trigger the download
+            const link = document.createElement('a');
+            link.download = 'mr-dentist-style.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         });
         
         sendToClinicButton.addEventListener('click', () => {
@@ -394,14 +402,7 @@
                 return;
             }
 
-            let messageText = "สนใจเปลี่ยนสียางครับ\n";
-            if (currentMode === 'single') {
-                messageText += `แบบสีเดียว: No. ${selectedColor1.no}`;
-            } else if (currentMode === 'alternate') {
-                messageText += `แบบสลับสี: No. ${selectedColor1.no} และ No. ${selectedColor2.no}`;
-            } else {
-                messageText += `แบบบน-ล่าง\nสีบน: No. ${selectedColor1.no}\nสีล่าง: No. ${selectedColor2.no}`;
-            }
+            const messageText = "นัดหมาย.";
 
             liff.sendMessages([{
                 type: 'text',
