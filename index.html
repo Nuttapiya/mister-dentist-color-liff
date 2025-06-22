@@ -126,10 +126,9 @@
             </div>
             <div class="flex flex-col gap-4">
                  <button id="send-to-clinic-button" class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                    <img src="https://scdn.line-apps.com/n/line_app_icon/120x120/line_icon.png" class="w-6 h-6 mr-2">
                     นัดหมายจัดฟัน
                 </button>
-                 <a id="download-button" class="w-full inline-flex justify-center items-center px-6 py-3 border border-slate-300 text-base font-medium rounded-full shadow-sm text-slate-700 bg-white hover:bg-slate-50 cursor-pointer">
+                 <a id="download-button" href="#" download="mr-dentist-style.png" class="w-full inline-flex justify-center items-center px-6 py-3 border border-slate-300 text-base font-medium rounded-full shadow-sm text-slate-700 bg-white hover:bg-slate-50 cursor-pointer">
                     ดาวน์โหลดรูปภาพ
                 </a>
                 <button id="close-modal-button" type="button" class="w-full text-sm text-slate-500 mt-2">ปิด</button>
@@ -382,18 +381,52 @@
         });
 
         shareButton.addEventListener('click', () => {
-            finalImage.src = canvas.toDataURL('image/png');
-            shareModal.style.display = 'flex';
+            // Generate the composite image with footer first
+            const dataUrl = canvas.toDataURL('image/png');
+            const finalCanvas = document.createElement('canvas');
+            const finalCtx = finalCanvas.getContext('2d');
+            const tempImg = new Image();
+            
+            tempImg.onload = () => {
+                const padding = 40;
+                const footerHeight = 120;
+                finalCanvas.width = tempImg.width + padding * 2;
+                finalCanvas.height = tempImg.height + padding * 2 + footerHeight;
+
+                finalCtx.fillStyle = 'white';
+                finalCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                finalCtx.drawImage(tempImg, padding, padding);
+
+                const footerY = tempImg.height + padding * 2;
+                finalCtx.fillStyle = '#0284c7';
+                finalCtx.fillRect(0, footerY, finalCanvas.width, footerHeight);
+                
+                let colorText = "";
+                if (currentMode === 'single') {
+                   colorText = `สีที่เลือก: No. ${selectedColor1.no}`;
+                } else if (currentMode === 'alternate') {
+                    colorText = `สีที่เลือก: No. ${selectedColor1.no}, No. ${selectedColor2.no} (สลับ)`;
+                } else {
+                    colorText = `สีบน: No. ${selectedColor1.no}, สีล่าง: No. ${selectedColor2.no}`;
+                }
+
+                finalCtx.fillStyle = 'white';
+                finalCtx.font = 'bold 32px Kanit';
+                finalCtx.fillText(colorText, padding, footerY + 50);
+                finalCtx.font = '28px Kanit';
+                finalCtx.fillText('#สียางมิสเตอร์เดนทิสท์ #misterdentist', padding, footerY + 95);
+
+                const finalDataUrl = finalCanvas.toDataURL('image/png');
+                finalImage.src = finalDataUrl;
+                downloadButton.href = finalDataUrl;
+                shareModal.style.display = 'flex';
+            };
+            tempImg.src = dataUrl;
         });
         
         downloadButton.addEventListener('click', (e) => {
-            // Prevent default anchor tag behavior
-            e.preventDefault();
-            // Create a temporary link element to trigger the download
-            const link = document.createElement('a');
-            link.download = 'mr-dentist-style.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+             // This button is an <a> tag, so its default behavior is to download
+             // The href is set dynamically when the share button is clicked.
         });
         
         sendToClinicButton.addEventListener('click', () => {
