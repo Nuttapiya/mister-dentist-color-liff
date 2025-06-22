@@ -375,12 +375,17 @@
                 summaryText = `แบบบน-ล่าง\nสีบน: No. ${selectedColor1.no}\nสีล่าง: No. ${selectedColor2.no}`;
             }
 
-            const messageText = `นัดหมายเปลี่ยนสียางฟันค่ะ\n${summaryText}\nโปรดเลือกสาขาที่จะทำการนัดหมาย`;
-
-            liff.sendMessages([{
+            const message1 = {
                 type: 'text',
-                text: messageText
-            }]).then(() => {
+                text: `นัดหมายเปลี่ยนสียางฟันค่ะ\n${summaryText}`
+            };
+
+            const message2 = {
+                type: 'text',
+                text: 'โปรดเลือกสาขาที่จะทำการนัดหมาย'
+            };
+
+            liff.sendMessages([message1, message2]).then(() => {
                 alert("ส่งข้อมูลให้คลินิกเรียบร้อยแล้วครับ!");
                 liff.closeWindow();
             }).catch((err) => {
