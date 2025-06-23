@@ -131,7 +131,6 @@
                                 รีเซ็ตสีเริ่มต้น
                             </button>
                          </div>
-                        <div id="liff-error-msg" class="text-red-500 text-sm mt-3 text-center font-semibold"></div>
                     </div>
                 </div>
             </div>
@@ -254,11 +253,10 @@
          * Handles sending the summary message via LIFF
          */
         async function sendSummary() {
-    liffErrorMsg.textContent = ""; // เพิ่มบรรทัดนี้เพื่อล้างข้อผิดพลาดเก่า
-    if (!liff.isInClient()) {
-        liffErrorMsg.textContent = "ฟังก์ชันนี้ใช้ได้เฉพาะในแอปพลิเคชัน LINE เท่านั้น";
-        return;
-    }
+            if (!liff.isInClient()) {
+                alert("ฟังก์ชันนี้ใช้ได้เฉพาะในแอปพลิเคชัน LINE เท่านั้น");
+                return;
+            }
 
             let summaryText = '';
             switch(currentMode) {
@@ -277,13 +275,15 @@
             const message2 = { type: 'text', text: 'โปรดเลือกสาขาที่จะทำการนัดหมาย' };
 
             try {
-        await liff.sendMessages([message1, message2]);
-        liff.closeWindow();
-    } catch (error) {
-        console.error('Failed to send messages', error);
-        liffErrorMsg.textContent = 'เกิดข้อผิดพลาดในการส่งข้อความ กรุณาลองใหม่อีกครั้ง';
-    }
-}
+                const result = await liff.sendMessages([message1, message2]);
+                 if (result) {
+                    liff.closeWindow();
+                }
+            } catch (error) {
+                console.error('Failed to send messages', error);
+                alert('เกิดข้อผิดพลาดในการส่งข้อความ');
+            }
+        }
 
         // --- Canvas and UI Functions ---
 
