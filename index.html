@@ -3,417 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mister Dentist Smile Studio</title>
+    <title>Mister Dentist Smile Studio - LIFF Version</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
     <style>
-        /* --- General Styling --- */
-        :root {
-            --primary-color: #4A90E2;
-            --secondary-color: #F5A623;
-            --background-color: #F7F9FC;
-            --text-color: #333;
-            --light-text-color: #fff;
-            --border-color: #E0E0E0;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap');
-
         body {
             font-family: 'Kanit', sans-serif;
-            margin: 0;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            overscroll-behavior-y: none; /* Prevents pull-to-refresh */
+            overflow-x: hidden;
         }
-
-        /* --- App Container --- */
-        #app-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* --- Header --- */
-        #header {
-            width: 100%;
-            text-align: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 15px;
-        }
-
-        #welcome-msg {
-            font-size: 1.2em;
-            font-weight: 500;
-            color: var(--primary-color);
-        }
-
-        /* --- Model and Canvas --- */
-        #model-container {
-            position: relative;
-            width: 100%;
-            max-width: 500px; /* Control max size of the model */
-            margin: 0 auto;
-            box-shadow: var(--shadow);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        #color-canvas, #teeth-model {
+        #canvas-container {
             width: 100%;
             height: auto;
+        }
+        canvas {
             display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
         }
-
-        #color-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
-
-        #teeth-model {
-            position: relative;
-            z-index: 2;
-            pointer-events: none; /* Make image click-through */
-        }
-        
-        /* --- Controls --- */
-        #controls-container {
-            width: 100%;
-            max-width: 500px;
-            margin-top: 20px;
-            background-color: #fff;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-        }
-        
-        .control-section {
-            margin-bottom: 20px;
-        }
-
-        .control-section h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            color: var(--text-color);
-            border-left: 4px solid var(--primary-color);
-            padding-left: 10px;
-        }
-
-        /* Mode Selector */
-        #mode-selector {
-            display: flex;
-            justify-content: space-around;
-            gap: 10px;
-        }
-
-        #mode-selector label {
-            flex-grow: 1;
-            text-align: center;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        #mode-selector input[type="radio"] {
-            display: none;
-        }
-
-        #mode-selector input[type="radio"]:checked + label {
-            background-color: var(--primary-color);
-            color: var(--light-text-color);
-            border-color: var(--primary-color);
-        }
-
-        /* Color Pickers */
-        #color-pickers-wrapper {
-            display: flex;
-            gap: 15px;
-            justify-content: space-between;
-        }
-
-        .color-picker-box {
-            flex: 1;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .color-picker-box h4 {
-            margin: 0 0 10px 0;
-            font-weight: 500;
-        }
-        
-        .color-preview {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin: 0 auto 10px;
-            border: 2px solid var(--border-color);
-            background-color: #fff;
-        }
-        
-        .color-picker-box button {
-            width: 100%;
-            padding: 8px;
-            border: none;
-            background-color: #efefef;
-            color: var(--text-color);
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: 'Kanit', sans-serif;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-
-        .color-picker-box button:hover {
-            background-color: #ddd;
-        }
-
-        /* --- Send Button --- */
-        #send-button {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.1em;
-            font-weight: 600;
-            background: linear-gradient(45deg, var(--secondary-color), #f7be4e);
-            color: var(--light-text-color);
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 10px rgba(245, 166, 35, 0.4);
-        }
-
-        #send-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        #send-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(245, 166, 35, 0.5);
-        }
-
-        /* --- Color Palette Modal --- */
-        #color-palette-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #palette-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
-            text-align: center;
-        }
-
-        #palette-content h3 {
-            margin-top: 0;
-        }
-        
-        #color-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
-            gap: 10px;
-        }
-        
         .color-swatch {
-            width: 100%;
-            padding-bottom: 100%; /* Creates a square */
+            transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
             position: relative;
-            border-radius: 8px;
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-            transition: transform 0.2s;
         }
-
         .color-swatch:hover {
             transform: scale(1.1);
         }
-
-        .color-swatch-inner {
+        .color-swatch.selected-1, .color-swatch.selected-2 {
+            outline: 3px solid #0ea5e9; /* sky-500 */
+            outline-offset: 2px;
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .color-swatch.selected-2 {
+            outline-color: #ec4899; /* pink-500 */
+        }
+        .color-no {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+            font-weight: bold;
             color: white;
-            font-size: 0.8em;
-            font-weight: 500;
-            border-radius: 8px; /* Match parent */
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.7);
+            pointer-events: none;
+        }
+        .mode-btn.active {
+             background-color: #0284c7; /* sky-600 */
+             color: white;
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800">
 
-    <div id="app-container">
-        <header id="header">
-            <h1 id="welcome-msg">สวัสดีครับ/ค่ะ</h1>
+    <div id="app" class="container mx-auto p-4 max-w-7xl">
+
+        <header class="text-center py-6">
+            <h1 class="text-4xl font-bold text-sky-600">Mister Dentist Smile Studio</h1>
+            <p id="welcome-msg" class="text-center text-lg text-slate-600 mt-2"></p>
         </header>
 
-        <div id="model-container">
-            <canvas id="color-canvas"></canvas>
-            <img id="teeth-model" src="https://i.postimg.cc/43GJL8Y6/Teeth2.png" alt="แบบจำลองฟัน">
-        </div>
+        <main class="bg-white rounded-2xl shadow-lg p-4 md:p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- 2D Image Area -->
+                <div class="lg:col-span-2 relative w-full h-auto bg-gray-200 rounded-lg overflow-hidden shadow-inner flex items-center justify-center">
+                    <div id="canvas-container">
+                        <canvas id="canvas"></canvas>
+                    </div>
+                     <p id="canvas-instruction" class="absolute top-4 w-full text-center text-slate-600 font-semibold p-2 bg-white/70 rounded-md">
+                        กำลังโหลดโมเดล...
+                    </p>
+                </div>
 
-        <div id="controls-container">
-            <div class="control-section">
-                <h3>1. เลือกโหมดสี</h3>
-                <div id="mode-selector">
-                    <input type="radio" id="mode-single" name="color-mode" value="single" checked>
-                    <label for="mode-single">สีเดียว</label>
-                    
-                    <input type="radio" id="mode-alternate" name="color-mode" value="alternate">
-                    <label for="mode-alternate">สลับสี</label>
-                    
-                    <input type="radio" id="mode-top-bottom" name="color-mode" value="top-bottom">
-                    <label for="mode-top-bottom">บน-ล่าง</label>
+                <!-- Controls Area -->
+                <div class="flex flex-col gap-6">
+                    <div>
+                        <h3 class="font-semibold text-lg mb-3">1. เลือกโหมด</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button id="mode-single" class="mode-btn w-full text-sm font-semibold py-3 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400 active">
+                                1 สี
+                            </button>
+                            <button id="mode-alternate" class="mode-btn w-full bg-slate-200 text-slate-700 text-sm font-semibold py-3 rounded-lg shadow hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400">
+                                สลับสี
+                            </button>
+                             <button id="mode-separate" class="mode-btn w-full bg-slate-200 text-slate-700 text-sm font-semibold py-3 rounded-lg shadow hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400">
+                                บน-ล่าง
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-lg mb-3">2. เลือกสี</h3>
+                         <div class="flex items-center mb-3 gap-3">
+                            <span id="label-color1" class="font-medium">สีที่เลือก:</span>
+                            <div id="selected-color-1" class="w-8 h-8 rounded-full border-2 border-white shadow flex items-center justify-center"></div>
+                            <span id="label-color2" class="font-medium hidden">สีที่ 2:</span>
+                            <div id="selected-color-2" class="w-8 h-8 rounded-full border-2 border-white shadow hidden items-center justify-center"></div>
+                        </div>
+                        <div id="color-palette" class="grid grid-cols-9 gap-2 max-h-80 overflow-y-auto p-3 bg-slate-100 rounded-lg">
+                        </div>
+                    </div>
+
+                    <div>
+                         <h3 class="font-semibold text-lg mb-3">3. จัดการ</h3>
+                         <div class="flex flex-col gap-3">
+                            <button id="send-summary-button" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 rounded-lg shadow disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>
+                                ส่งสรุปให้คลินิก
+                            </button>
+                            <button id="share-button" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg shadow">
+                                สร้างรูปภาพสำหรับแชร์
+                            </button>
+                            <button id="reset-button" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg shadow">
+                                รีเซ็ตสีเริ่มต้น
+                            </button>
+                         </div>
+                    </div>
                 </div>
             </div>
+        </main>
+    </div>
 
-            <div class="control-section">
-                <h3>2. เลือกสี</h3>
-                <div id="color-pickers-wrapper">
-                    <div class="color-picker-box" id="picker-box-1">
-                        <h4>สีที่ 1</h4>
-                        <div class="color-preview" id="color-preview-1"></div>
-                        <span id="color-name-1">No. 1</span>
-                        <button id="btn-choose-color-1" data-picker="1">เลือกสี</button>
-                    </div>
-                    <div class="color-picker-box" id="picker-box-2">
-                        <h4>สีที่ 2</h4>
-                        <div class="color-preview" id="color-preview-2"></div>
-                        <span id="color-name-2">No. 2</span>
-                        <button id="btn-choose-color-2" data-picker="2">เลือกสี</button>
-                    </div>
-                </div>
+    <!-- Modal for Sharing -->
+    <div id="share-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl p-6 max-w-lg w-full text-center">
+            <h2 class="text-2xl font-bold mb-4">สไตล์ของคุณพร้อมแชร์แล้ว!</h2>
+            <div class="bg-slate-100 p-2 rounded-lg mb-6">
+                 <img id="final-image" src="" alt="Final customized smile" class="max-w-full h-auto rounded-md">
             </div>
-
-            <div class="control-section">
-                 <h3>3. ส่งข้อมูล</h3>
-                <button id="send-button" disabled>ส่งสรุปให้คลินิก</button>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                 <a id="download-button" href="#" download="mr-dentist-style.png" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-sky-600 hover:bg-sky-700">
+                    ดาวน์โหลดรูปภาพ
+                </a>
+                <button id="close-modal-button" type="button" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-slate-300 text-base font-medium rounded-full shadow-sm text-slate-700 bg-white hover:bg-slate-50">
+                    ปิด
+                </button>
             </div>
         </div>
     </div>
-
-    <!-- Color Palette Modal -->
-    <div id="color-palette-modal">
-        <div id="palette-content">
-            <h3 id="palette-title">เลือกสี</h3>
-            <div id="color-grid"></div>
-        </div>
-    </div>
-
-
+    
     <script>
-    // --- WAIT FOR DOM CONTENT TO BE LOADED ---
-    window.addEventListener('DOMContentLoaded', (event) => {
-
-        // --- GLOBAL VARIABLES & CONSTANTS ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- LIFF CONSTANTS ---
         const LIFF_ID = "2007619958-Eo0arOXR";
 
-        // DOM Elements
+        // --- DOM Elements ---
         const welcomeMsg = document.getElementById('welcome-msg');
-        const canvas = document.getElementById('color-canvas');
-        const ctx = canvas.getContext('2d');
-        const teethModelImg = document.getElementById('teeth-model');
-        const modeRadios = document.querySelectorAll('input[name="color-mode"]');
-        const sendButton = document.getElementById('send-button');
-        
-        // Color Picker UI
-        const pickerBox2 = document.getElementById('picker-box-2');
-        const colorPreview1 = document.getElementById('color-preview-1');
-        const colorName1 = document.getElementById('color-name-1');
-        const colorPreview2 = document.getElementById('color-preview-2');
-        const colorName2 = document.getElementById('color-name-2');
-        const btnChoose1 = document.getElementById('btn-choose-color-1');
-        const btnChoose2 = document.getElementById('btn-choose-color-2');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const canvasInstruction = document.getElementById('canvas-instruction');
+        const modeSingleBtn = document.getElementById('mode-single');
+        const modeAlternateBtn = document.getElementById('mode-alternate');
+        const modeSeparateBtn = document.getElementById('mode-separate');
+        const colorPalette = document.getElementById('color-palette');
+        const selectedColor1Div = document.getElementById('selected-color-1');
+        const selectedColor2Div = document.getElementById('selected-color-2');
+        const labelColor1 = document.getElementById('label-color1');
+        const labelColor2 = document.getElementById('label-color2');
+        const resetButton = document.getElementById('reset-button');
+        const shareButton = document.getElementById('share-button'); // Image generation button
+        const sendSummaryButton = document.getElementById('send-summary-button'); // LIFF message button
+        const shareModal = document.getElementById('share-modal');
+        const closeModalButton = document.getElementById('close-modal-button');
+        const finalImage = document.getElementById('final-image');
+        const downloadButton = document.getElementById('download-button');
 
-        // Modal UI
-        const modal = document.getElementById('color-palette-modal');
-        const modalTitle = document.getElementById('palette-title');
-        const colorGrid = document.getElementById('color-grid');
+        // --- State and Data ---
+        let currentMode = 'single';
+        let dualColorSelectorToggle = false;
+        const baseImage = new Image();
+        let originalImageData = null;
+
+        const colors = [
+            { no: 1, code: '#a7bd8c' }, { no: 2, code: '#6a8342' }, { no: 3, code: '#667a58' }, { no: 4, code: '#334430' }, { no: 5, code: '#00260a' },
+            { no: 6, code: '#133d1c' }, { no: 7, code: '#0b5e15' }, { no: 8, code: '#1b3606' }, { no: 9, code: '#3d4f00' }, { no: 10, code: '#187d71' },
+            { no: 11, code: '#469d84' }, { no: 12, code: '#489956' }, { no: 13, code: '#3a9e13' }, { no: 14, code: '#45973f' }, { no: 15, code: '#6fa523' },
+            { no: 16, code: '#a8c572' }, { no: 17, code: '#b5b600' }, { no: 18, code: '#9aaf00' }, { no: 19, code: '#1c7e8f' }, { no: 20, code: '#665168' },
+            { no: 21, code: '#0e5175' }, { no: 22, code: '#05547d' }, { no: 23, code: '#007e9d' }, { no: 24, code: '#0d8991' }, { no: 25, code: '#599199' },
+            { no: 26, code: '#76bdaa' }, { no: 27, code: '#63a0a5' }, { no: 28, code: '#21406d' }, { no: 29, code: '#1a286a' }, { no: 30, code: '#302e5a' },
+            { no: 31, code: '#172a2d' }, { no: 32, code: '#3b596c' }, { no: 33, code: '#416d6c' }, { no: 34, code: '#4280a8' }, { no: 35, code: '#529666' },
+            { no: 36, code: '#75abb0' }, { no: 37, code: '#2c5498' }, { no: 38, code: '#7a90c6' }, { no: 39, code: '#2e2e55' }, { no: 40, code: '#5f3d5a' },
+            { no: 41, code: '#7e6289' }, { no: 42, code: '#9a78a3' }, { no: 43, code: '#d63c8b' }, { no: 44, code: '#811563' }, { no: 45, code: '#923c95' },
+            { no: 46, code: '#b33357' }, { no: 47, code: '#a93b39' }, { no: 48, code: '#b32c37' }, { no: 49, code: '#7d0005' }, { no: 50, code: '#700027' },
+            { no: 51, code: '#46000a' }, { no: 52, code: '#4b2d39' }, { no: 53, code: '#24165f' }, { no: 54, code: '#45357b' }, { no: 55, code: '#d04c69' },
+            { no: 56, code: '#e174a8' }, { no: 57, code: '#b5737f' }, { no: 58, code: '#ab7f85' }, { no: 59, code: '#bf779c' }, { no: 60, code: '#cd718a' },
+            { no: 61, code: '#bd6677' }, { no: 62, code: '#d59989' }, { no: 63, code: '#d08ead' }, { no: 64, code: '#a4a6a0' }, { no: 65, code: '#84827d' },
+            { no: 66, code: '#e2c18c' }, { no: 67, code: '#e4d55d' }, { no: 68, code: '#d68d4d' }, { no: 69, code: '#e28200' }, { no: 70, code: '#ce5b0d' },
+            { no: 71, code: '#a82631' }, { no: 72, code: '#b46157' }, { no: 73, code: '#121010' }, { no: 74, code: '#000668' }, { no: 75, code: '#006692' },
+            { no: 76, code: '#6eda00' }, { no: 77, code: '#efd600' }, { no: 78, code: '#ffa61a' }, { no: 79, code: '#ff5a18' }, { no: 80, code: '#ff2e71' },
+            { no: 81, code: '#a9006c' }, { no: 82, code: '#e4e8e0' }, { no: 83, code: '#5e0042' }, { no: 84, code: '#004e67' }, { no: 85, code: '#003ba4' },
+            { no: 86, code: '#005a4b' }, { no: 87, code: '#3f9c00' }, { no: 88, code: '#ff4200' }, { no: 89, code: '#860000' }, { no: 90, code: '#c51575' }
+        ];
+
+        let selectedColor1 = colors[0];
+        let selectedColor2 = colors[1];
         
-        // Data
         const upperBrackets = [
             { x: 227, y: 347 }, { x: 287, y: 372 }, { x: 369, y: 388 }, { x: 472, y: 403 },
             { x: 594, y: 406 }, { x: 705, y: 398 }, { x: 795, y: 380 }, { x: 850, y: 357 },
         ];
         const lowerBrackets = [
-            { x: 273, y: 439 }, { x: 344, y: 462 }, { x: 425, y: 473 }, { x: 502, y: 479 },
-            { x: 581, y: 481 }, { x: 658, y: 478 }, { x: 743, y: 468 }, { x: 812, y: 439 },
+             { x: 273, y: 439 }, { x: 344, y: 462 }, { x: 425, y: 473 }, { x: 502, y: 479 },
+             { x: 581, y: 481 }, { x: 658, y: 478 }, { x: 743, y: 468 }, { x: 812, y: 439 },
         ];
-        const colors = [
-            { id: 1, code: '#a7bd8c' }, { id: 2, code: '#6a8342' }, { id: 3, code: '#667a58' },
-            { id: 4, code: '#034430' }, { id: 5, code: '#00260a' }, { id: 6, code: '#133d1c' },
-            { id: 7, code: '#0b5e15' }, { id: 8, code: '#1b3606' }, { id: 9, code: '#3d4f00' },
-            { id: 10, code: '#187d71' }, { id: 11, code: '#469d84' }, { id: 12, code: '#489956' },
-            { id: 13, code: '#3a9e13' }, { id: 14, code: '#45973f' }, { id: 15, code: '#6fa523' },
-            { id: 16, code: '#a8c572' }, { id: 17, code: '#b5b600' }, { id: 18, code: '#9aaf00' },
-            { id: 19, code: '#1c7e8f' }, { id: 20, code: '#65b168' }, { id: 21, code: '#0e5175' },
-            { id: 22, code: '#05547d' }, { id: 23, code: '#007e9d' }, { id: 24, code: '#0d8991' },
-            { id: 25, code: '#599199' }, { id: 26, code: '#76bdaa' }, { id: 27, code: '#63a0a5' },
-            { id: 28, code: '#21406d' }, { id: 29, code: '#1a286a' }, { id: 30, code: '#302e5a' },
-            { id: 31, code: '#172a2d' }, { id: 32, code: '#3b596c' }, { id: 33, code: '#416d6c' },
-            { id: 34, code: '#4280a8' }, { id: 35, code: '#529666' }, { id: 36, code: '#75abb0' },
-            { id: 37, code: '#2c5498' }, { id: 38, code: '#7a90c6' }, { id: 39, code: '#2e2e55' },
-            { id: 40, code: '#5f3d5a' }, { id: 41, code: '#7e6289' }, { id: 42, code: '#9a78a3' },
-            { id: 43, code: '#d63c8b' }, { id: 44, code: '#811563' }, { id: 45, code: '#923c95' },
-            { id: 46, code: '#b33357' }, { id: 47, code: '#a93b39' }, { id: 48, code: '#b32c37' },
-            { id: 49, code: '#7d0005' }, { id: 50, code: '#700027' }, { id: 51, code: '#46000a' },
-            { id: 52, code: '#4b2d39' }, { id: 53, code: '#24165f' }, { id: 54, code: '#45357b' },
-            { id: 55, code: '#d04c69' }, { id: 56, code: '#e174a8' }, { id: 57, code: '#b5737f' },
-            { id: 58, code: '#ab7f85' }, { id: 59, code: '#bf779c' }, { id: 60, code: '#cd718a' },
-            { id: 61, code: '#bd6677' }, { id: 62, code: '#d59989' }, { id: 63, code: '#d08ead' },
-            { id: 64, code: '#a4a6a0' }, { id: 65, code: '#84827d' }, { id: 66, code: '#e2c18c' },
-            { id: 67, code: '#e4d55d' }, { id: 68, code: '#d68d4d' }, { id: 69, code: '#e28200' },
-            { id: 70, code: '#ce5b0d' }, { id: 71, code: '#a82631' }, { id: 72, code: '#b46157' },
-            { id: 73, code: '#121010' }, { id: 74, code: '#000668' }, { id: 75, code: '#006692' },
-            { id: 76, code: '#6eda00' }, { id: 77, code: '#efd600' }, { id: 78, code: '#ffa61a' },
-            { id: 79, code: '#ff5a18' }, { id: 80, code: '#ff2e71' }, { id: 81, code: '#a9006c' },
-            { id: 82, code: '#e4e8e0' }, { id: 83, code: '#5e0042' }, { id: 84, code: '#004e67' },
-            { id: 85, code: '#003ba4' }, { id: 86, code: '#005a4b' }, { id: 87, code: '#3f9c00' },
-            { id: 88, code: '#ff4200' }, { id: 89, code: '#860000' }, { id: 90, code: '#c51575' }
-        ];
+        const allBrackets = [...upperBrackets, ...lowerBrackets];
 
-        // Application State
-        let state = {
-            mode: 'single', // 'single', 'alternate', 'top-bottom'
-            color1: { id: 1, code: '#a7bd8c' },
-            color2: { id: 2, code: '#6a8342' },
-            activePicker: null, // 1 or 2
-            originalImgWidth: 1080, // Set original width of your image
-            originalImgHeight: 566 // Set original height of your image
-        };
-
-        // --- FUNCTIONS ---
+        // --- LIFF Functions ---
 
         /**
          * Initializes the LIFF app
@@ -422,158 +227,23 @@
             try {
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) {
-                    liff.login();
-                    return; // Stop execution until redirect
+                    liff.login({ redirectUri: window.location.href });
+                    return;
                 }
                 
-                // Get user profile
                 const profile = await liff.getProfile();
                 welcomeMsg.textContent = `สวัสดีครับ/ค่ะ คุณ ${profile.displayName}`;
 
-                // Enable send button only if in LINE client
                 if (liff.isInClient()) {
-                    sendButton.disabled = false;
+                    sendSummaryButton.disabled = false;
                 } else {
-                    welcomeMsg.textContent += " (กรุณาเปิดในแอป LINE เพื่อส่งข้อมูล)";
+                     welcomeMsg.textContent += " (กรุณาเปิดในแอป LINE เพื่อส่งสรุป)";
                 }
 
             } catch (error) {
                 console.error('LIFF initialization failed', error);
                 welcomeMsg.textContent = "ไม่สามารถเชื่อมต่อกับ LINE ได้";
             }
-        }
-
-        /**
-         * Sets up the canvas dimensions based on the displayed image size
-         */
-        function setupCanvas() {
-            // Wait for the image to be fully loaded to get its dimensions
-            teethModelImg.onload = () => {
-                canvas.width = teethModelImg.clientWidth;
-                canvas.height = teethModelImg.clientHeight;
-                updateUI(); // Initial draw
-            };
-            // If image is already cached/loaded
-            if (teethModelImg.complete) {
-                teethModelImg.onload();
-            }
-        }
-        
-        /**
-         * Draws a single colored circle on the canvas
-         * @param {number} x - The x coordinate
-         * @param {number} y - The y coordinate
-         * @param {string} color - The hex color code
-         */
-        function drawCircle(x, y, color) {
-            const scaleX = canvas.width / state.originalImgWidth;
-            const scaleY = canvas.height / state.originalImgHeight;
-            const radius = 35 * Math.min(scaleX, scaleY); // Scale radius as well
-            
-            ctx.beginPath();
-            ctx.arc(x * scaleX, y * scaleY, radius, 0, 2 * Math.PI, false);
-            ctx.fillStyle = color;
-            ctx.fill();
-        }
-
-        /**
-         * Main drawing function. Clears and redraws all braces based on current state.
-         */
-        function drawBraces() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const c1 = state.color1.code;
-            const c2 = state.color2.code;
-
-            switch (state.mode) {
-                case 'single':
-                    upperBrackets.forEach(p => drawCircle(p.x, p.y, c1));
-                    lowerBrackets.forEach(p => drawCircle(p.x, p.y, c1));
-                    break;
-                case 'alternate':
-                    // Upper: A-B-A-B...
-                    upperBrackets.forEach((p, i) => drawCircle(p.x, p.y, i % 2 === 0 ? c1 : c2));
-                    // Lower: B-A-B-A...
-                    lowerBrackets.forEach((p, i) => drawCircle(p.x, p.y, i % 2 === 0 ? c2 : c1));
-                    break;
-                case 'top-bottom':
-                    upperBrackets.forEach(p => drawCircle(p.x, p.y, c1));
-                    lowerBrackets.forEach(p => drawCircle(p.x, p.y, c2));
-                    break;
-            }
-        }
-
-        /**
-         * Updates the entire UI based on the current state
-         */
-        function updateUI() {
-            // Update picker visibility based on mode
-            pickerBox2.style.display = state.mode === 'single' ? 'none' : 'flex';
-            
-            // Update color previews
-            colorPreview1.style.backgroundColor = state.color1.code;
-            colorName1.textContent = `No. ${state.color1.id}`;
-            colorPreview2.style.backgroundColor = state.color2.code;
-            colorName2.textContent = `No. ${state.color2.id}`;
-            
-            // Redraw the canvas
-            if (teethModelImg.complete) {
-               drawBraces();
-            }
-        }
-
-        /**
-         * Populates the color grid in the modal
-         */
-        function populateColorGrid() {
-            colorGrid.innerHTML = ''; // Clear existing swatches
-            colors.forEach(color => {
-                const swatch = document.createElement('div');
-                swatch.className = 'color-swatch';
-                
-                const inner = document.createElement('div');
-                inner.className = 'color-swatch-inner';
-                inner.style.backgroundColor = color.code;
-                inner.textContent = color.id;
-                
-                swatch.appendChild(inner);
-
-                swatch.addEventListener('click', () => {
-                    selectColor(color);
-                });
-                colorGrid.appendChild(swatch);
-            });
-        }
-        
-        /**
-         * Opens the color palette modal for a specific picker
-         * @param {number} pickerNumber - 1 or 2
-         */
-        function openModal(pickerNumber) {
-            state.activePicker = pickerNumber;
-            modalTitle.textContent = `เลือกสีที่ ${pickerNumber}`;
-            modal.style.display = 'flex';
-        }
-
-        /**
-         * Closes the color palette modal
-         */
-        function closeModal() {
-            modal.style.display = 'none';
-        }
-
-        /**
-         * Handles the selection of a color from the modal
-         * @param {object} color - The selected color object {id, code}
-         */
-        function selectColor(color) {
-            if (state.activePicker === 1) {
-                state.color1 = color;
-            } else if (state.activePicker === 2) {
-                state.color2 = color;
-            }
-            closeModal();
-            updateUI();
         }
 
         /**
@@ -585,82 +255,256 @@
                 return;
             }
 
-            // Construct the summary message
             let summaryText = '';
-            switch(state.mode) {
+            switch(currentMode) {
                 case 'single':
-                    summaryText = `แบบสีเดียว: No. ${state.color1.id}`;
+                    summaryText = `แบบสีเดียว: No. ${selectedColor1.no}`;
                     break;
                 case 'alternate':
-                    summaryText = `แบบสลับสี: No. ${state.color1.id} และ No. ${state.color2.id}`;
+                    summaryText = `แบบสลับสี: No. ${selectedColor1.no} และ No. ${selectedColor2.no}`;
                     break;
-                case 'top-bottom':
-                    summaryText = `แบบบน-ล่าง: บน No. ${state.color1.id}, ล่าง No. ${state.color2.id}`;
+                case 'separate':
+                    summaryText = `แบบบน-ล่าง: บน No. ${selectedColor1.no}, ล่าง No. ${selectedColor2.no}`;
                     break;
             }
 
-            const message1 = {
-                type: 'text',
-                text: `นัดหมายเปลี่ยนสียางฟันค่ะ\n${summaryText}`
-            };
-
-            const message2 = {
-                type: 'text',
-                text: 'โปรดเลือกสาขาที่จะทำการนัดหมาย'
-            };
+            const message1 = { type: 'text', text: `นัดหมายเปลี่ยนสียางฟันค่ะ\n${summaryText}` };
+            const message2 = { type: 'text', text: 'โปรดเลือกสาขาที่จะทำการนัดหมาย' };
 
             try {
-                // Send messages
-                await liff.sendMessages([message1, message2]);
-                // Close the LIFF window
-                liff.closeWindow();
+                const result = await liff.sendMessages([message1, message2]);
+                 if (result) {
+                    liff.closeWindow();
+                }
             } catch (error) {
                 console.error('Failed to send messages', error);
                 alert('เกิดข้อผิดพลาดในการส่งข้อความ');
             }
         }
 
+        // --- Canvas and UI Functions ---
 
-        // --- EVENT LISTENERS ---
+        baseImage.crossOrigin = "Anonymous";
+        baseImage.src = 'https://i.postimg.cc/43GJL8Y6/Teeth2.png';
+        baseImage.onload = () => {
+            canvas.width = baseImage.width;
+            canvas.height = baseImage.height;
+            ctx.drawImage(baseImage, 0, 0);
+            originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            redrawAllBrackets();
+            canvasInstruction.textContent = "เลือกโหมดและสีที่ต้องการได้เลย";
+        };
+        baseImage.onerror = () => {
+            canvasInstruction.textContent = "เกิดข้อผิดพลาดในการโหลดรูปภาพโมเดล โปรดรีเฟรชหน้า";
+        }
 
-        // Listen for mode changes
-        modeRadios.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                state.mode = e.target.value;
-                updateUI();
-            });
-        });
+        function redrawAllBrackets() {
+            if (!originalImageData) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Listen for window resize to adjust canvas
-        window.addEventListener('resize', () => {
-            // A slight delay can help ensure layout is stable
-            setTimeout(() => {
-                if (teethModelImg.complete) {
-                    canvas.width = teethModelImg.clientWidth;
-                    canvas.height = teethModelImg.clientHeight;
-                    drawBraces();
-                }
-            }, 100);
-        });
-
-        // Modal open/close listeners
-        btnChoose1.addEventListener('click', () => openModal(1));
-        btnChoose2.addEventListener('click', () => openModal(2));
-        modal.addEventListener('click', (e) => {
-            // Close if clicking on the background, not the content
-            if (e.target === modal) {
-                closeModal();
+            const radius = 35; 
+            
+            if (currentMode === 'single') {
+                allBrackets.forEach(coord => {
+                    ctx.beginPath();
+                    ctx.arc(coord.x, coord.y, radius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = selectedColor1.code;
+                    ctx.fill();
+                });
+            } else if (currentMode === 'alternate') {
+                upperBrackets.forEach((coord, index) => {
+                    const colorToApply = index % 2 === 0 ? selectedColor1.code : selectedColor2.code;
+                    ctx.beginPath();
+                    ctx.arc(coord.x, coord.y, radius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = colorToApply;
+                    ctx.fill();
+                });
+                lowerBrackets.forEach((coord, index) => {
+                    const colorToApply = index % 2 === 0 ? selectedColor2.code : selectedColor1.code;
+                    ctx.beginPath();
+                    ctx.arc(coord.x, coord.y, radius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = colorToApply;
+                    ctx.fill();
+                });
+            } else if (currentMode === 'separate') {
+                 upperBrackets.forEach(coord => {
+                    ctx.beginPath();
+                    ctx.arc(coord.x, coord.y, radius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = selectedColor1.code;
+                    ctx.fill();
+                });
+                lowerBrackets.forEach(coord => {
+                    ctx.beginPath();
+                    ctx.arc(coord.x, coord.y, radius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = selectedColor2.code;
+                    ctx.fill();
+                });
             }
+
+            ctx.drawImage(baseImage, 0, 0);
+        }
+        
+        function initColorPalette() {
+            colorPalette.innerHTML = '';
+            colors.forEach((color) => {
+                const swatch = document.createElement('div');
+                swatch.className = 'w-8 h-8 rounded-md color-swatch shadow-md border border-white/50 cursor-pointer';
+                swatch.style.backgroundColor = color.code;
+                swatch.dataset.colorCode = color.code;
+                swatch.dataset.colorNo = color.no;
+                
+                const noSpan = document.createElement('span');
+                noSpan.className = 'color-no';
+                noSpan.textContent = color.no;
+                swatch.appendChild(noSpan);
+
+                colorPalette.appendChild(swatch);
+                
+                if (color.no === selectedColor1.no) swatch.classList.add('selected-1');
+                 if (color.no === selectedColor2.no) swatch.classList.add('selected-2');
+
+
+                swatch.addEventListener('click', () => {
+                    const clickedColor = { no: parseInt(swatch.dataset.colorNo), code: swatch.dataset.colorCode };
+                    if (currentMode === 'single') {
+                        selectedColor1 = clickedColor;
+                        document.querySelector('.color-swatch.selected-1')?.classList.remove('selected-1');
+                        swatch.classList.add('selected-1');
+                    } else {
+                        // In dual color modes, determine which color to change
+                        if (!dualColorSelectorToggle) {
+                            selectedColor1 = clickedColor;
+                            document.querySelector('.color-swatch.selected-1')?.classList.remove('selected-1');
+                             if(selectedColor1.no === selectedColor2.no) {
+                                document.querySelector('.color-swatch.selected-2')?.classList.remove('selected-2');
+                            }
+                            swatch.classList.add('selected-1');
+                        } else {
+                            selectedColor2 = clickedColor;
+                            document.querySelector('.color-swatch.selected-2')?.classList.remove('selected-2');
+                             if(selectedColor1.no === selectedColor2.no) {
+                                document.querySelector('.color-swatch.selected-1')?.classList.remove('selected-1');
+                            }
+                            swatch.classList.add('selected-2');
+                        }
+                        dualColorSelectorToggle = !dualColorSelectorToggle;
+                    }
+                    updateSelectedColorUI();
+                    redrawAllBrackets();
+                });
+            });
+            updateSelectedColorUI();
+        }
+
+        function updateSelectedColorUI() {
+            selectedColor1Div.style.backgroundColor = selectedColor1.code;
+            
+            if (currentMode === 'single') {
+                labelColor1.textContent = "สีที่เลือก:";
+                selectedColor2Div.classList.add('hidden');
+                labelColor2.classList.add('hidden');
+            } else if (currentMode === 'alternate'){
+                labelColor1.textContent = "สีที่ 1:";
+                labelColor2.textContent = "สีที่ 2:";
+                selectedColor2Div.style.backgroundColor = selectedColor2.code;
+                selectedColor2Div.classList.remove('hidden');
+                labelColor2.classList.remove('hidden');
+            } else { // separate
+                labelColor1.textContent = "สีบน:";
+                labelColor2.textContent = "สีล่าง:";
+                selectedColor2Div.style.backgroundColor = selectedColor2.code;
+                selectedColor2Div.classList.remove('hidden');
+                labelColor2.classList.remove('hidden');
+            }
+        }
+
+        function switchMode(newMode) {
+            currentMode = newMode;
+            dualColorSelectorToggle = false;
+            
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-sky-600', 'text-white');
+                btn.classList.add('bg-slate-200', 'text-slate-700');
+            });
+            
+            let activeButton;
+            if (newMode === 'single') activeButton = modeSingleBtn;
+            else if (newMode === 'alternate') activeButton = modeAlternateBtn;
+            else activeButton = modeSeparateBtn;
+            
+            activeButton.classList.add('active', 'bg-sky-600', 'text-white');
+            activeButton.classList.remove('bg-slate-200', 'text-slate-700');
+
+            updateSelectedColorUI();
+            redrawAllBrackets();
+        }
+        
+        // --- Event Listeners ---
+        modeSingleBtn.addEventListener('click', () => switchMode('single'));
+        modeAlternateBtn.addEventListener('click', () => switchMode('alternate'));
+        modeSeparateBtn.addEventListener('click', () => switchMode('separate'));
+
+        resetButton.addEventListener('click', () => {
+            selectedColor1 = colors[0];
+            selectedColor2 = colors[1];
+            initColorPalette();
+            redrawAllBrackets();
         });
 
-        // Send button listener
-        sendButton.addEventListener('click', sendSummary);
+        // LIFF button listener
+        sendSummaryButton.addEventListener('click', sendSummary);
 
-        // --- INITIALIZATION ---
-        initializeLiff();
-        setupCanvas();
-        populateColorGrid();
-        updateUI(); // Initial UI setup
+        // Image Generation button listener
+        shareButton.addEventListener('click', () => {
+            const dataUrl = canvas.toDataURL('image/png');
+            const finalCanvas = document.createElement('canvas');
+            const finalCtx = finalCanvas.getContext('2d');
+            const tempImg = new Image();
+            
+            tempImg.onload = () => {
+                const padding = 40;
+                const footerHeight = 120;
+                finalCanvas.width = tempImg.width + padding * 2;
+                finalCanvas.height = tempImg.height + padding * 2 + footerHeight;
+
+                finalCtx.fillStyle = 'white';
+                finalCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                finalCtx.drawImage(tempImg, padding, padding);
+
+                const footerY = tempImg.height + padding * 2;
+                finalCtx.fillStyle = '#0284c7';
+                finalCtx.fillRect(0, footerY, finalCanvas.width, footerHeight);
+                
+                let colorText = "";
+                if (currentMode === 'single') {
+                   colorText = `สีที่เลือก: No. ${selectedColor1.no}`;
+                } else if (currentMode === 'alternate') {
+                    colorText = `สีที่เลือก: No. ${selectedColor1.no}, No. ${selectedColor2.no} (สลับ)`;
+                } else {
+                    colorText = `สีบน: No. ${selectedColor1.no}, สีล่าง: No. ${selectedColor2.no}`;
+                }
+
+                finalCtx.fillStyle = 'white';
+                finalCtx.font = 'bold 32px Kanit';
+                finalCtx.fillText(colorText, padding, footerY + 50);
+                finalCtx.font = '28px Kanit';
+                finalCtx.fillText('#สียางมิสเตอร์เดนทิสท์ #misterdentist', padding, footerY + 95);
+
+                finalImage.src = finalCanvas.toDataURL('image/png');
+                downloadButton.href = finalCanvas.toDataURL('image/png');
+                shareModal.style.display = 'flex';
+            };
+            tempImg.src = dataUrl;
+        });
+        
+        closeModalButton.addEventListener('click', () => {
+             shareModal.style.display = 'none';
+        });
+
+        // --- Initializations ---
+        initializeLiff(); // Start LIFF connection
+        initColorPalette();
+        switchMode('single');
     });
     </script>
 </body>
