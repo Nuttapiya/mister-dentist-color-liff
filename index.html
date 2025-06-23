@@ -131,6 +131,8 @@
                                 รีเซ็ตสีเริ่มต้น
                             </button>
                          </div>
+                         <!-- LIFF Error Message Display Area -->
+                         <div id="liff-error-msg" class="text-red-500 text-sm mt-3 text-center font-semibold"></div>
                     </div>
                 </div>
             </div>
@@ -161,7 +163,7 @@
         const LIFF_ID = "2007619958-Eo0arOXR";
 
         // --- DOM Elements ---
-        const welcomeMsg = document.getElementById('welcome-msg');
+        const welcomeMessage = document.getElementById('welcome-message'); // FIX: Corrected variable name
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         const canvasInstruction = document.getElementById('canvas-instruction');
@@ -174,12 +176,13 @@
         const labelColor1 = document.getElementById('label-color1');
         const labelColor2 = document.getElementById('label-color2');
         const resetButton = document.getElementById('reset-button');
-        const shareButton = document.getElementById('share-button'); // Image generation button
-        const sendSummaryButton = document.getElementById('send-summary-button'); // LIFF message button
+        const shareButton = document.getElementById('share-button');
+        const sendSummaryButton = document.getElementById('send-summary-button');
         const shareModal = document.getElementById('share-modal');
         const closeModalButton = document.getElementById('close-modal-button');
         const finalImage = document.getElementById('final-image');
         const downloadButton = document.getElementById('download-button');
+        const liffErrorMsg = document.getElementById('liff-error-msg'); // NEW: Get error message element
 
         // --- State and Data ---
         let currentMode = 'single';
@@ -235,26 +238,28 @@
                 }
                 
                 const profile = await liff.getProfile();
-                welcomeMsg.textContent = `สวัสดีครับ/ค่ะ คุณ ${profile.displayName}`;
+                welcomeMessage.textContent = `สวัสดีครับ/ค่ะ คุณ ${profile.displayName}`;
 
                 if (liff.isInClient()) {
                     sendSummaryButton.disabled = false;
                 } else {
-                     welcomeMsg.textContent += " (กรุณาเปิดในแอป LINE เพื่อส่งสรุป)";
+                     welcomeMessage.textContent += " (กรุณาเปิดในแอป LINE เพื่อส่งสรุป)";
                 }
 
             } catch (error) {
                 console.error('LIFF initialization failed', error);
-                welcomeMsg.textContent = "ไม่สามารถเชื่อมต่อกับ LINE ได้";
+                welcomeMessage.textContent = "ไม่สามารถเชื่อมต่อกับ LINE ได้";
             }
         }
 
         /**
          * Handles sending the summary message via LIFF
          */
+        // FIX: Replaced entire function with corrected logic
         async function sendSummary() {
+            liffErrorMsg.textContent = ""; // Clear previous errors
             if (!liff.isInClient()) {
-                alert("ฟังก์ชันนี้ใช้ได้เฉพาะในแอปพลิเคชัน LINE เท่านั้น");
+                liffErrorMsg.textContent = "ฟังก์ชันนี้ใช้ได้เฉพาะในแอปพลิเคชัน LINE เท่านั้น";
                 return;
             }
 
@@ -275,13 +280,11 @@
             const message2 = { type: 'text', text: 'โปรดเลือกสาขาที่จะทำการนัดหมาย' };
 
             try {
-                const result = await liff.sendMessages([message1, message2]);
-                 if (result) {
-                    liff.closeWindow();
-                }
+                await liff.sendMessages([message1, message2]);
+                liff.closeWindow();
             } catch (error) {
                 console.error('Failed to send messages', error);
-                alert('เกิดข้อผิดพลาดในการส่งข้อความ');
+                liffErrorMsg.textContent = 'เกิดข้อผิดพลาดในการส่งข้อความ กรุณาลองใหม่อีกครั้ง';
             }
         }
 
@@ -364,14 +367,14 @@
                 colorPalette.appendChild(swatch);
                 
                 if (color.no === selectedColor1.no) swatch.classList.add('selected-1');
-                 if (color.no === selectedColor2.no) swatch.classList.add('selected-2');
-
+                 if (currentMode !== 'single' && color.no === selectedColor2.no) swatch.classList.add('selected-2');
 
                 swatch.addEventListener('click', () => {
                     const clickedColor = { no: parseInt(swatch.dataset.colorNo), code: swatch.dataset.colorCode };
                     if (currentMode === 'single') {
                         selectedColor1 = clickedColor;
                         document.querySelector('.color-swatch.selected-1')?.classList.remove('selected-1');
+                        document.querySelector('.color-swatch.selected-2')?.classList.remove('selected-2'); // Ensure no pink border in single mode
                         swatch.classList.add('selected-1');
                     } else {
                         // In dual color modes, determine which color to change
@@ -421,6 +424,7 @@
             }
         }
 
+        // FIX: Modified this function to clean up selection state
         function switchMode(newMode) {
             currentMode = newMode;
             dualColorSelectorToggle = false;
@@ -437,6 +441,11 @@
             
             activeButton.classList.add('active', 'bg-sky-600', 'text-white');
             activeButton.classList.remove('bg-slate-200', 'text-slate-700');
+
+            // Clean up the pink border if switching to single mode
+            if (newMode === 'single') {
+                document.querySelector('.color-swatch.selected-2')?.classList.remove('selected-2');
+            }
 
             updateSelectedColorUI();
             redrawAllBrackets();
